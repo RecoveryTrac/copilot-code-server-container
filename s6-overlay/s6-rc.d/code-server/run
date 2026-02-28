@@ -1,4 +1,4 @@
 #!/command/with-contenv bash
 set -euo pipefail
 
-exec s6-setuidgid agent code-server --bind-addr 0.0.0.0:8080 --auth none /home/agent/workspace
+exec s6-setuidgid agent code-server --bind-addr 0.0.0.0:8080 --auth none --disable-proxy /home/agent/workspace/RecoveryTrac

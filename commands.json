@@ -3,7 +3,9 @@
     "dotnet_build": {
       "description": "Build a .NET project or solution",
       "command": "dotnet",
-      "baseArgs": ["build"],
+      "baseArgs": [
+        "build"
+      ],
       "parameters": {
         "project_path": {
           "type": "string",
@@ -13,7 +15,10 @@
         "configuration": {
           "type": "string",
           "description": "Build configuration (Debug or Release)",
-          "enum": ["Debug", "Release"],
+          "enum": [
+            "Debug",
+            "Release"
+          ],
           "argName": "--configuration"
         },
         "no_restore": {
@@ -26,7 +31,9 @@
     "dotnet_restore": {
       "description": "Restore dependencies for a .NET project",
       "command": "dotnet",
-      "baseArgs": ["restore"],
+      "baseArgs": [
+        "restore"
+      ],
       "parameters": {
         "project_path": {
           "type": "string",
@@ -38,7 +45,11 @@
     "dotnet_test": {
       "description": "Run tests for a .NET project",
       "command": "dotnet",
-      "baseArgs": ["test", "--verbosity", "normal"],
+      "baseArgs": [
+        "test",
+        "--verbosity",
+        "normal"
+      ],
       "parameters": {
         "project_path": {
           "type": "string",
@@ -48,7 +59,10 @@
         "configuration": {
           "type": "string",
           "description": "Build configuration (Debug or Release)",
-          "enum": ["Debug", "Release"],
+          "enum": [
+            "Debug",
+            "Release"
+          ],
           "argName": "--configuration"
         },
         "filter": {
@@ -63,28 +77,12 @@
         }
       }
     },
-    "dotnet_run_benchmark": {
-      "description": "Run a BenchmarkDotNet project with optional profiling",
-      "command": "dotnet",
-      "baseArgs": ["run", "--configuration", "Release"],
-      "parameters": {
-        "project_path": {
-          "type": "string",
-          "description": "Path to benchmark .csproj file",
-          "required": true,
-          "argName": "--project"
-        },
-        "profiler": {
-          "type": "string",
-          "description": "Profiler to use (e.g., 'EP' for Event Pipe, 'ETW' for Event Tracing for Windows)",
-          "argName": "--profiler"
-        }
-      }
-    },
     "dotnet_format": {
       "description": "Format .NET code according to style rules",
       "command": "dotnet",
-      "baseArgs": ["format"],
+      "baseArgs": [
+        "format"
+      ],
       "parameters": {
         "project_path": {
           "type": "string",
@@ -101,14 +99,29 @@
     "git_status": {
       "description": "Show the working tree status",
       "command": "git",
-      "baseArgs": ["status"],
-      "parameters": {}
+      "baseArgs": [
+        "status"
+      ],
+      "parameters": {
+        "directory": {
+          "type": "string",
+          "description": "Path to git repository directory (for submodules, e.g., './Services'). Defaults to current directory.",
+          "argName": "-C"
+        }
+      }
     },
     "git_diff": {
       "description": "Show changes between commits, commit and working tree, etc",
       "command": "git",
-      "baseArgs": ["diff"],
+      "baseArgs": [
+        "diff"
+      ],
       "parameters": {
+        "directory": {
+          "type": "string",
+          "description": "Path to git repository directory (for submodules, e.g., './Services'). Defaults to current directory.",
+          "argName": "-C"
+        },
         "staged": {
           "type": "boolean",
           "description": "Show staged changes (--cached)",
@@ -119,18 +132,121 @@
     "git_current_branch": {
       "description": "Get the name of the current git branch",
       "command": "git",
-      "baseArgs": ["branch", "--show-current"],
-      "parameters": {}
+      "baseArgs": [
+        "branch",
+        "--show-current"
+      ],
+      "parameters": {
+        "directory": {
+          "type": "string",
+          "description": "Path to git repository directory (for submodules, e.g., './Services'). Defaults to current directory.",
+          "argName": "-C"
+        }
+      }
     },
     "git_commit": {
-      "description": "Commit all changes with a message. Stages all tracked files and commits them.",
-      "command": "git",
-      "baseArgs": ["commit", "-am"],
+      "description": "Commit all changes with a message. Automatically formats commit with issue number and Copilot tag: [#123][Copilot] message",
+      "command": "agent-git-commit",
+      "baseArgs": [],
       "parameters": {
+        "issue_number": {
+          "type": "number",
+          "description": "Issue/work item number to link this commit to",
+          "required": true,
+          "argName": "--issue-number"
+        },
         "message": {
           "type": "string",
-          "description": "Commit message",
+          "description": "Commit message (will be prefixed with [#issue][Copilot])",
           "required": true,
+          "argName": "--message"
+        },
+        "directory": {
+          "type": "string",
+          "description": "Path to git repository directory (for submodules, e.g., './Services'). Defaults to current directory.",
+          "argName": "--directory"
+        }
+      }
+    },
+    "git_stage": {
+      "description": "Stage files for commit",
+      "command": "git",
+      "baseArgs": [
+        "add"
+      ],
+      "parameters": {
+        "file_path": {
+          "type": "string",
+          "description": "Path to file or directory to stage (use '.' for all changes, or './Services/file.cs' for submodules)",
+          "required": true,
+          "position": 0
+        },
+        "directory": {
+          "type": "string",
+          "description": "Path to git repository directory to operate from (for submodules, e.g., './Services'). Optional - if omitted, file_path can include submodule paths.",
+          "argName": "-C"
+        },
+        "all": {
+          "type": "boolean",
+          "description": "Stage all changes including deletions",
+          "argName": "-A"
+        }
+      }
+    },
+    "git_unstage": {
+      "description": "Unstage files (remove from staging area but keep changes)",
+      "command": "git",
+      "baseArgs": [
+        "restore",
+        "--staged"
+      ],
+      "parameters": {
+        "file_path": {
+          "type": "string",
+          "description": "Path to file or directory to unstage (use '.' for all staged files, or './Services/file.cs' for submodules)",
+          "required": true,
+          "position": 0
+        },
+        "directory": {
+          "type": "string",
+          "description": "Path to git repository directory to operate from (for submodules, e.g., './Services'). Optional - if omitted, file_path can include submodule paths.",
+          "argName": "-C"
+        }
+      }
+    },
+    "git_restore": {
+      "description": "Restore file(s) to a specific commit (defaults to HEAD/last commit)",
+      "command": "git",
+      "baseArgs": [
+        "restore"
+      ],
+      "parameters": {
+        "file_path": {
+          "type": "string",
+          "description": "Path to file or directory to restore (can include submodule paths like './Services/file.cs')",
+          "required": true,
+          "position": 0
+        },
+        "directory": {
+          "type": "string",
+          "description": "Path to git repository directory to operate from (for submodules, e.g., './Services'). Optional - if omitted, file_path can include submodule paths.",
+          "argName": "-C"
+        },
+        "commit": {
+          "type": "string",
+          "description": "Commit hash or reference to restore from (e.g., 'HEAD', 'HEAD~1', commit SHA). Defaults to HEAD if omitted.",
+          "argName": "--source"
+        }
+      }
+    },
+    "git_push": {
+      "description": "Push current branch to origin (safeguarded - checks for uncommitted changes and prevents pushing scratchpad branches)",
+      "command": "agent-git-push",
+      "baseArgs": [],
+      "parameters": {
+        "directory": {
+          "type": "string",
+          "description": "Path to git repository directory (defaults to current directory)",
           "position": 0
         }
       }
@@ -138,7 +254,9 @@
     "ls": {
       "description": "List directory contents",
       "command": "ls",
-      "baseArgs": ["-lah"],
+      "baseArgs": [
+        "-lah"
+      ],
       "parameters": {
         "path": {
           "type": "string",
@@ -165,7 +283,9 @@
     "delete_file": {
       "description": "Delete a file",
       "command": "rm",
-      "baseArgs": ["-v"],
+      "baseArgs": [
+        "-v"
+      ],
       "parameters": {
         "file_path": {
           "type": "string",
@@ -183,7 +303,9 @@
     "delete_directory": {
       "description": "Delete a directory and its contents",
       "command": "rm",
-      "baseArgs": ["-rv"],
+      "baseArgs": [
+        "-rv"
+      ],
       "parameters": {
         "directory_path": {
           "type": "string",
@@ -201,7 +323,9 @@
     "mkdir": {
       "description": "Create a directory and all necessary parent directories in the path",
       "command": "mkdir",
-      "baseArgs": ["-p"],
+      "baseArgs": [
+        "-p"
+      ],
       "parameters": {
         "directory_path": {
           "type": "string",
@@ -258,7 +382,9 @@
     "wc": {
       "description": "Count the number of lines in a file",
       "command": "wc",
-      "baseArgs": ["-l"],
+      "baseArgs": [
+        "-l"
+      ],
       "parameters": {
         "file_path": {
           "type": "string",
@@ -271,7 +397,9 @@
     "sed": {
       "description": "Stream editor for filtering and transforming text - primarily for find/replace operations",
       "command": "sed",
-      "baseArgs": ["-E"],
+      "baseArgs": [
+        "-E"
+      ],
       "parameters": {
         "pattern": {
           "type": "string",
@@ -300,7 +428,11 @@
     "grep": {
       "description": "Search for patterns in files",
       "command": "grep",
-      "baseArgs": ["-r", "-n", "-E"],
+      "baseArgs": [
+        "-r",
+        "-n",
+        "-E"
+      ],
       "parameters": {
         "pattern": {
           "type": "string",
@@ -344,6 +476,72 @@
           "argName": "-C"
         }
       }
+    },
+    "az_devops_get_work_item": {
+      "description": "Get work item details including description and acceptance criteria from Azure DevOps",
+      "command": "agent-az-devops",
+      "baseArgs": [
+        "boards",
+        "work-item",
+        "show",
+        "--output",
+        "json"
+      ],
+      "parameters": {
+        "id": {
+          "type": "number",
+          "description": "Work item ID (issue number)",
+          "required": true,
+          "argName": "--id"
+        }
+      }
+    },
+    "az_devops_get_pull_requests": {
+      "description": "Get open pull requests for a repository with their associated branch names",
+      "command": "agent-az-devops",
+      "baseArgs": [
+        "repos",
+        "pr",
+        "list",
+        "--status",
+        "active",
+        "--output",
+        "json"
+      ],
+      "parameters": {
+        "repository": {
+          "type": "string",
+          "description": "Repository name (e.g., 'Aspire', 'Services')",
+          "required": true,
+          "argName": "--repository"
+        }
+      }
+    },
+    "az_devops_get_pr_comments": {
+      "description": "Get unresolved comment threads for a pull request including file paths and line numbers",
+      "command": "agent-az-devops",
+      "baseArgs": [
+        "repos",
+        "pr",
+        "thread",
+        "list",
+        "--output",
+        "json"
+      ],
+      "parameters": {
+        "id": {
+          "type": "number",
+          "description": "Pull request ID",
+          "required": true,
+          "argName": "--id"
+        }
+      }
+    },
+    "az_devops_list_repos": {
+      "description": "List Azure DevOps repositories that agents are allowed to access",
+      "command": "agent-az-devops-list-repositories",
+      "baseArgs": [],
+      "parameters": {}
     }
   }
 }

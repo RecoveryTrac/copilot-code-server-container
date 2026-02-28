@@ -1,0 +1,8 @@
+{
+    "repoMainBranches": {
+        ".": "main",
+        "./Services": "develop",
+        "./Mobile": "develop",
+        "./DataHub": "main"
+    }
+}

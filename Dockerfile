@@ -2,34 +2,29 @@ FROM debian:13
 
 ARG S6_OVERLAY_VERSION=3.2.1.0
 
-# Install base dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    wget \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    openssh-client \
-    zsh \
-    lazygit \
-    pass \
-    iptables \
-    iproute2 \
-    xz-utils \
-    tar \
-    bash \
-    && rm -rf /var/lib/apt/lists/*
+# ============================================
+# IMPORTANT: Windows Line Ending Handling
+# ============================================
+# When building on Windows hosts, copied shell scripts may contain CRLF (\\r\\n) line endings.
+# Linux requires LF (\\n) line endings. Scripts with CRLF fail with "No such file or directory"
+# errors because the shebang becomes "#!/bin/bash\\r" (looking for /bin/bash\\r which doesn't exist).
+#
+# Solution: After COPY operations for shell scripts, we run sed -i 's/\\r$//' to strip carriage
+# returns. This is done in the same RUN layer as chmod for efficiency (single layer, fast).
+# ============================================
 
 # ============================================
-# Install Docker Engine (official Debian instructions style)
+# PHASE 1: Install all package repository keys
 # ============================================
-RUN apt-get update \
-    && apt-get install -y ca-certificates curl \
+# Install base tools and Docker GPG key
+RUN apt-get update && apt-get install -y ca-certificates curl gnupg wget \
     && install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
     && chmod a+r /etc/apt/keyrings/docker.asc \
-    && . /etc/os-release \
+    && rm -rf /var/lib/apt/lists/*
+
+# Docker repository
+RUN . /etc/os-release \
     && tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
 Types: deb
 URIs: https://download.docker.com/linux/debian
@@ -38,30 +33,84 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
-RUN apt-get update \
-    && apt-get install -y \
-        docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+# Microsoft and Charm GPG keys and repositories
+RUN wget https://packages.microsoft.com/config/debian/13/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && rm packages-microsoft-prod.deb \
+    && curl -fsSL https://repo.charm.sh/apt/gpg.key | gpg --dearmor -o /etc/apt/keyrings/charm.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | tee /etc/apt/sources.list.d/charm.list
+
+# ============================================
+# PHASE 2: Single apt update with all repositories
+# ============================================
+RUN apt-get update
+
+# ============================================
+# PHASE 3: Apt Install - Chunk 1 (Large, expensive, low-volatility packages)
+# ============================================
+RUN apt-get install -y \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    docker-buildx-plugin \
+    docker-compose-plugin \
+    dotnet-sdk-10.0 \
+    git \
+    openssh-client \
+    zsh \
+    lazygit \
+    iptables \
+    iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
-# Install s6-overlay (minimal init + service supervisor)
+# PHASE 4: Apt Install - Chunk 2 (Medium packages)
+# ============================================
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    npm \
+    python3 \
+    wget \
+    curl \
+    ca-certificates \
+    xz-utils \
+    tar \
+    bash \
+    lsb-release \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================
+# PHASE 5: Apt Install - Chunk 3 (Small, frequently updated packages)
+# ============================================
+RUN apt-get update && apt-get install -y \
+    gum \
+    jq \
+    pass \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================
+# PHASE 6-7: Install s6-overlay and clean up package keys
 # ============================================
 RUN ARCH="$(dpkg --print-architecture)" \
     && case "$ARCH" in \
-      amd64)  S6_ARCH=x86_64  ;; \
-      arm64)  S6_ARCH=aarch64 ;; \
-      *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
+    amd64)  S6_ARCH=x86_64  ;; \
+    arm64)  S6_ARCH=aarch64 ;; \
+    *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
     esac \
     && curl -fsSL -o /tmp/s6-overlay-noarch.tar.xz \
-      "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" \
+    "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" \
     && curl -fsSL -o /tmp/s6-overlay-arch.tar.xz \
-      "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz" \
+    "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz" \
     && tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
     && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
-    && rm -f /tmp/s6-overlay-noarch.tar.xz /tmp/s6-overlay-arch.tar.xz
+    && rm -f /tmp/s6-overlay-noarch.tar.xz /tmp/s6-overlay-arch.tar.xz \
+    && rm -f /etc/apt/keyrings/docker.asc \
+    /etc/apt/keyrings/charm.gpg \
+    /etc/apt/sources.list.d/docker.sources \
+    /etc/apt/sources.list.d/charm.list
 
 # ============================================
-# Create locked-down agent user with "inner" docker daemon access
+# PHASE 8: Create agent user (required before language tools)
 # ============================================
 RUN useradd -m -s /bin/zsh agent && \
     mkdir -p /home/agent/workspace && \
@@ -71,80 +120,44 @@ RUN useradd -m -s /bin/zsh agent && \
     usermod -aG docker agent
 
 # ============================================
-# Install Node.js + npm
+# PHASE 9: Install expensive third-party tools (low volatility)
 # ============================================
-RUN apt-get update && \
-    apt-get install -y nodejs npm && \
-    rm -rf /var/lib/apt/lists/*
+# Azure CLI (expensive, low volatility)
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
-# ============================================
-# Install Python 3
-# ============================================
-RUN apt-get update && \
-    apt-get install -y python3 && \
-    rm -rf /var/lib/apt/lists/*
-
-# ============================================
-# Install .NET SDK 10.0
-# ============================================
-RUN wget https://packages.microsoft.com/config/debian/13/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
-    dpkg -i packages-microsoft-prod.deb && \
-    rm packages-microsoft-prod.deb && \
-    apt-get update && \
-    apt-get install -y dotnet-sdk-10.0 && \
-    rm -rf /var/lib/apt/lists/*
-
-# ============================================
-# Install code-server
-# ============================================
+# code-server (expensive, low volatility)
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-# ============================================
-# Install copilot CLI
-# ============================================
+# copilot CLI (medium expense, low volatility)
 RUN curl -fsSL https://gh.io/copilot-install | bash
 
-# ============================================
-# Install cli-mcp-mapper
-# ============================================
-RUN npm i -g cli-mcp-mapper
+# Aspire CLI (low-medium expense, medium volatility)
+RUN curl -sSL https://aspire.dev/install.sh | bash
 
 # ============================================
-# Store agent bootstrap script in immutable image path (not volume-backed)
+# PHASE 10: Install language-specific tools (medium volatility)
 # ============================================
-RUN mkdir -p /usr/local/share/copilot-code-server-container
-COPY entrypoint.sh /usr/local/share/copilot-code-server-container/agent-bootstrap.sh
-RUN chmod 0755 /usr/local/share/copilot-code-server-container/agent-bootstrap.sh
+# .NET tools
+RUN dotnet tool install --global roslyn-language-server --prerelease
+
+# Node.js global packages
+RUN npm install -g typescript-language-server typescript cli-mcp-mapper
 
 # ============================================
-# Configure s6 services
+# PHASE 11: Install Azure DevOps extension (depends on Azure CLI)
 # ============================================
-COPY ./container-log-prefixer.sh /usr/local/share/copilot-code-server-container/container-log-prefixer.sh
-RUN chmod +x /usr/local/share/copilot-code-server-container/container-log-prefixer.sh
+RUN az extension add --name azure-devops
 
-COPY s6-overlay/ /etc/s6-overlay/
-
-RUN chmod +x \
-  /etc/s6-overlay/s6-rc.d/code-server/run \
-  /etc/s6-overlay/s6-rc.d/code-server/log/run \
-  /etc/s6-overlay/s6-rc.d/dockerd/run \
-  /etc/s6-overlay/s6-rc.d/dockerd/log/run 
-
-RUN /command/s6-rc-compile /etc/s6-overlay/s6-rc-compiled /etc/s6-overlay/s6-rc.d
-
-ENV S6_CMD_WAIT_FOR_SERVICES=1
-ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=30000
-ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
-
-# Switch to agent user for agent-owned config initialization
+# ============================================
+# PHASE 12: Agent user environment setup (low volatility)
+# ============================================
 USER agent
 
-ENV SHELL=/usr/bin/zsh
-ENV HOME=/home/agent
-ENV USER=agent
-ENV LOGNAME=agent
-
-ENV PATH="${PATH}:/home/agent/.dotnet/tools"
+ENV SHELL=/usr/bin/zsh \
+    HOME=/home/agent \
+    USER=agent \
+    LOGNAME=agent \
+    PATH="${PATH}:/home/agent/.dotnet/tools"
 
 # Install oh-my-zsh for agent user
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -164,6 +177,69 @@ EOF
 RUN mkdir -p /home/agent/.local/share/code-server/User \
     && mkdir -p /home/agent/.config/Code/User/globalStorage/github.copilot-chat
 
+# ============================================
+# PHASE 13: Copy high-volatility agent scripts and configs
+# ============================================
+USER root
+
+# Copy all agent scripts and configs
+# Note: When building on Windows, scripts may have CRLF line endings
+COPY entrypoint.sh /usr/local/share/copilot-code-server-container/agent-bootstrap.sh
+COPY start-issue.sh /usr/local/bin/start-issue
+COPY agent-git-push.sh /usr/local/bin/agent-git-push
+COPY agent-git-commit.sh /usr/local/bin/agent-git-commit
+COPY agent-az-devops.sh /usr/local/bin/agent-az-devops
+COPY agent-az-devops-list-repositories.sh /usr/local/bin/agent-az-devops-list-repositories
+COPY repo-mappings.json allowed-repositories.conf /etc/
+
+# Fix Windows line endings (CRLF → LF) and set permissions in one layer
+# Without this, scripts fail with "No such file or directory" errors on Linux
+RUN sed -i 's/\r$//' /usr/local/share/copilot-code-server-container/agent-bootstrap.sh \
+    /usr/local/bin/start-issue \
+    /usr/local/bin/agent-git-push \
+    /usr/local/bin/agent-git-commit \
+    /usr/local/bin/agent-az-devops \
+    /usr/local/bin/agent-az-devops-list-repositories && \
+    chmod 0755 /usr/local/share/copilot-code-server-container/agent-bootstrap.sh && \
+    chmod +x /usr/local/bin/start-issue \
+    /usr/local/bin/agent-git-push \
+    /usr/local/bin/agent-git-commit \
+    /usr/local/bin/agent-az-devops \
+    /usr/local/bin/agent-az-devops-list-repositories
+
+# ============================================
+# PHASE 14: Set Azure DevOps environment (medium-high volatility)
+# ============================================
+ENV AZURE_DEVOPS_ORG=TDRRecoveryTrac \
+    AZURE_DEVOPS_PROJECT=RecoveryTrac
+
+# ============================================
+# PHASE 15: Configure s6 services (high volatility)
+# ============================================
+COPY ./container-log-prefixer.sh /usr/local/share/copilot-code-server-container/container-log-prefixer.sh
+COPY s6-overlay/ /etc/s6-overlay/
+
+# Fix Windows line endings (CRLF → LF), set permissions, and compile s6 in one layer
+# The find command ensures ALL s6 script files have Unix line endings
+RUN find /etc/s6-overlay -type f -exec sed -i 's/\r$//' {} \; && \
+    sed -i 's/\r$//' /usr/local/share/copilot-code-server-container/container-log-prefixer.sh && \
+    chmod +x /usr/local/share/copilot-code-server-container/container-log-prefixer.sh \
+    /etc/s6-overlay/s6-rc.d/code-server/run \
+    /etc/s6-overlay/s6-rc.d/code-server/log/run \
+    /etc/s6-overlay/s6-rc.d/dockerd/run \
+    /etc/s6-overlay/s6-rc.d/dockerd/log/run && \
+    /command/s6-rc-compile /etc/s6-overlay/s6-rc-compiled /etc/s6-overlay/s6-rc.d
+
+# S6_CMD_WAIT_FOR_SERVICES_MAXTIME: Global timeout for all services to start (milliseconds)
+# Set to 10 minutes (600000ms) to allow git clone with large submodules to complete
+ENV S6_CMD_WAIT_FOR_SERVICES=1 \
+    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=600000 \
+    S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
+    DOCKER_HOST=unix:///var/run/docker.sock
+
+# ============================================
+# PHASE 16: Final runtime configuration
+# ============================================
 WORKDIR /home/agent/workspace
 
 EXPOSE 8080
@@ -173,7 +249,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 
 # s6 init must run as root so dockerd can start; code-server runs as agent via s6 service
 USER root
-
-ENV DOCKER_HOST=unix:///var/run/docker.sock
 
 ENTRYPOINT ["/init"]

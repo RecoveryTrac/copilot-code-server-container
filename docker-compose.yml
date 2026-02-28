@@ -22,14 +22,22 @@ services:
       - ./commands.json:/home/agent/.config/cli-mcp-mapper/commands.json
 
     environment:
+      # Per-developer Git configuration
       - GIT_USERNAME=${GIT_USERNAME}
       - GIT_EMAIL=${GIT_EMAIL}
+      
+      # Repository checkout configuration
+      - REPO_URL=git@ssh.dev.azure.com:v3/TDRRecoveryTrac/RecoveryTrac/Aspire
+      - REPO_FOLDER=RecoveryTrac
+      
+      # Shell theme preference
       - ZSH_THEME=jonathan
 
     ports:
+      # code-server
       - "8080:8080"
-      - "17275:17275"
-      - "65432:65432"
+      # Aspire Dashboard
+      - "17143:17143"
 
 volumes:
   agent-home:
