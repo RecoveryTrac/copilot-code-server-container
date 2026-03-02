@@ -203,7 +203,7 @@ Defines custom commands available to the agent through the [cli-mcp-mapper](http
 - **Version Control**: git, lazygit
 - **Security**: GPG, pass (password manager), OpenSSH
 - **Shell**: zsh with oh-my-zsh (jonathan theme)
-- **AI Tools**: GitHub Copilot CLI, cli-mcp-mapper
+- **AI Tools**: GitHub CLI (`gh`) with Copilot extension, cli-mcp-mapper
 - **Docker**: Docker Engine + Docker Compose plugin
 
 ## Common Tasks

@@ -113,9 +113,16 @@ RUN mkdir -p /run/sshd && \
     ssh-keygen -A
 
 # ============================================
-# Install copilot CLI
+# Install GitHub CLI (gh)
 # ============================================
-RUN curl -fsSL https://gh.io/copilot-install | bash
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y gh \
+    && rm -rf /var/lib/apt/lists/*
 
 # ============================================
 # Install cli-mcp-mapper
@@ -145,6 +152,13 @@ RUN chmod +x \
   /etc/s6-overlay/s6-rc.d/sshd/log/run \
   /etc/s6-overlay/s6-rc.d/dockerd/run \
   /etc/s6-overlay/s6-rc.d/dockerd/log/run 
+
+# Remove any legacy s6 service directories that external install scripts may
+# have created (e.g. code-server registers /etc/services.d/code-server/).
+# All services for this container are compiled into s6-rc-compiled; legacy
+# service discovery must not start unexpected processes.
+# Placed here, after all external installs, to act as a final clean-up guard.
+RUN rm -rf /etc/services.d/ /etc/cont-init.d/
 
 RUN /command/s6-rc-compile /etc/s6-overlay/s6-rc-compiled /etc/s6-overlay/s6-rc.d
 

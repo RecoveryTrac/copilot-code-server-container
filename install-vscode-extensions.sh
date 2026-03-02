@@ -1,4 +1,7 @@
 #!/bin/bash
+# This script is run as the 'agent' user (s6-setuidgid agent in the oneshot up file).
+# All files and directories created here are therefore already owned by agent; no
+# explicit chown calls are needed.
 set -e
 
 FLAG_FILE="/home/agent/.vscode-extensions-installed"
@@ -17,10 +20,18 @@ case "$ARCH" in
     *) echo "⚠️  Unsupported architecture: $ARCH, skipping extension install"; exit 0 ;;
 esac
 
-curl -fsSL "https://code.visualstudio.com/sha/download?build=stable&os=cli-linux-${VS_ARCH}" \
-    -o /tmp/vscode-cli.tar.gz
-tar -xzf /tmp/vscode-cli.tar.gz -C /tmp
-rm /tmp/vscode-cli.tar.gz
+if ! curl -fsSL "https://code.visualstudio.com/sha/download?build=stable&os=cli-linux-${VS_ARCH}" \
+        -o /tmp/vscode-cli.tar.gz; then
+    echo "⚠️  Could not download VS Code CLI, skipping extension pre-install (extensions will install on first VS Code connection)"
+    exit 0
+fi
+
+if ! tar -xzf /tmp/vscode-cli.tar.gz -C /tmp; then
+    echo "⚠️  Could not extract VS Code CLI, skipping extension pre-install"
+    rm -f /tmp/vscode-cli.tar.gz
+    exit 0
+fi
+rm -f /tmp/vscode-cli.tar.gz
 
 echo "🔌 Pre-installing VS Code extensions..."
 
@@ -39,8 +50,6 @@ for EXT in \
 done
 
 rm -f /tmp/code
-chown -R agent:agent "$EXTENSIONS_DIR"
 
 touch "$FLAG_FILE"
-chown agent:agent "$FLAG_FILE"
 echo "✅ VS Code extension pre-installation complete"

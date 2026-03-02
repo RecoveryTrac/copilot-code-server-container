@@ -102,6 +102,15 @@ echo "🚀 ============================================================"
 echo ""
 
 # ============================================
+# Install gh-copilot extension (idempotent)
+# ============================================
+if ! gh extension list 2>/dev/null | grep -q "github/gh-copilot"; then
+    echo "🤖 Installing gh-copilot extension..."
+    gh extension install github/gh-copilot 2>/dev/null || \
+        echo "⚠️  Could not install gh-copilot extension (run: gh extension install github/gh-copilot)"
+fi
+
+# ============================================
 # Configure git
 # ============================================
 git config --global user.name "$GIT_USERNAME"
