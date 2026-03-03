@@ -16,6 +16,7 @@ VSCODE_DIRS=(
     /home/agent/.vscode-server
     /home/agent/.vscode-server/data
     /home/agent/.vscode-server/data/Machine
+    /home/agent/.vscode-server/data/User
 )
 
 mkdir -p "${VSCODE_DIRS[@]}"

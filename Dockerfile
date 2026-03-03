@@ -194,6 +194,7 @@ EOF
 
 # Create config directories
 RUN mkdir -p /home/agent/.vscode-server/data/Machine \
+    && mkdir -p /home/agent/.vscode-server/data/User \
     && mkdir -p /home/agent/.vscode-server/extensions
 
 WORKDIR /home/agent/workspace

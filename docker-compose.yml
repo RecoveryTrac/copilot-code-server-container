@@ -19,6 +19,9 @@ services:
       # Mount VS Code remote machine settings
       - ./vscode-settings.json:/home/agent/.vscode-server/data/Machine/settings.json
 
+      # Mount VS Code MCP server configuration
+      - ./copilot/mcp.json:/home/agent/.vscode-server/data/User/mcp.json
+
       # Mount VS Code extensions directory so installs via the UI are git-tracked.
       # Install extensions through VS Code, then commit ./vscode-server/extensions/
       # to share the same extension set with other developers.
