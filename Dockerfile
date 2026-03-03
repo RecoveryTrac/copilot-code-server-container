@@ -147,6 +147,7 @@ RUN chmod +x /usr/local/share/copilot-code-server-container/container-log-prefix
 COPY s6-overlay/ /etc/s6-overlay/
 
 RUN chmod +x \
+  /etc/s6-overlay/s6-rc.d/agent-bootstrap/up \
   /etc/s6-overlay/s6-rc.d/sshd/run \
   /etc/s6-overlay/s6-rc.d/sshd/log/run \
   /etc/s6-overlay/s6-rc.d/dockerd/run \
