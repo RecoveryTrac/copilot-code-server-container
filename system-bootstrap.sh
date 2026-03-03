@@ -1,23 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Fix ownership of the VS Code server directory tree.
-# When Docker mounts the agent-home named volume and THEN applies the
-# ./vscode-server/extensions bind-mount, if .vscode-server does not yet
-# exist in the volume Docker creates it as root.  That makes the directory
-# unwritable by the agent SSH user, causing a "Permission denied" error
-# when VS Code Remote-SSH tries to SCP its server binary into
-# /home/agent/.vscode-server/.
-#
-# We must NOT chown .vscode-server/extensions because that path is a
-# bind-mount from the host – touching its ownership would change the host
-# directory permissions.  Likewise for .vscode-server/data/Machine/settings.json.
-VSCODE_DIRS=(
-    /home/agent/.vscode-server
-    /home/agent/.vscode-server/data
-    /home/agent/.vscode-server/data/Machine
-    /home/agent/.vscode-server/data/User
-)
-
-mkdir -p "${VSCODE_DIRS[@]}"
-chown agent:agent "${VSCODE_DIRS[@]}"
+# Ensure the agent user owns the entire .vscode-server bind-mount tree so that
+# VS Code Remote-SSH can read and write freely (installing its server binary,
+# writing logs, caching extensions, etc.).
+chown -R agent:agent /home/agent/.vscode-server

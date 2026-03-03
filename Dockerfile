@@ -192,10 +192,9 @@ Name-Email: agent@localhost
 Expire-Date: 0
 EOF
 
-# Create config directories
-RUN mkdir -p /home/agent/.vscode-server/data/Machine \
-    && mkdir -p /home/agent/.vscode-server/data/User \
-    && mkdir -p /home/agent/.vscode-server/extensions
+# Create base VS Code server directory; the full tree is provided at runtime
+# by the ./vscode-server bind-mount in docker-compose.yml.
+RUN mkdir -p /home/agent/.vscode-server
 
 WORKDIR /home/agent/workspace
 

@@ -163,9 +163,9 @@ Add this key to your git hosting service (GitHub, Azure DevOps, GitLab, etc.) to
 
 ## Configuration Files
 
-### `vscode-settings.json` - VS Code Remote Settings
+### `vscode-server/data/Machine/settings.json` - VS Code Remote Settings
 
-Controls VS Code editor settings applied on the remote container. Mounted at `/home/agent/.vscode-server/data/Machine/settings.json`.
+Controls VS Code editor settings applied on the remote container. Mounted (as part of the full `./vscode-server` bind-mount) at `/home/agent/.vscode-server/data/Machine/settings.json`.
 
 Default settings include:
 - GitHub Copilot enabled
@@ -174,9 +174,9 @@ Default settings include:
 - Abyss color theme
 - Copilot Chat agent mode enabled
 
-### `copilot/` - MCP Server Configuration
+### `vscode-server/data/User/mcp.json` - MCP Server Configuration
 
-Configures Model Context Protocol (MCP) servers that extend GitHub Copilot's capabilities. Mounted at `/home/agent/.copilot/`.
+Configures Model Context Protocol (MCP) servers that extend GitHub Copilot's capabilities in VS Code. Mounted at `/home/agent/.vscode-server/data/User/mcp.json`.
 
 ### `commands.json` - CLI MCP Mapper Commands
 
@@ -260,11 +260,11 @@ docker compose up -d --build
 
 ## Persistent Data
 
-Agent home (`/home/agent`) is stored in a Docker named volume (`agent-home`), which persists between container restarts. This includes workspace files, shell history, SSH keys, git credentials, and VS Code server state (excluding extensions).
+Agent home (`/home/agent`) is stored in a Docker named volume (`agent-home`), which persists between container restarts. This includes workspace files, shell history, SSH keys, and git credentials.
 
-VS Code extensions are stored in `./vscode-server/extensions/` — a bind-mounted directory tracked in this git repo. Extensions you install via the VS Code UI go there automatically; commit the directory to share them with your team.
+The entire `./vscode-server/` directory is bind-mounted at `/home/agent/.vscode-server/`. This means VS Code server state, settings, MCP configuration, and extensions are all stored on the host and tracked in this git repo.
 
-To completely reset the environment, remove the volume with `docker compose down -v` (your committed extensions in `vscode-server/extensions/` are unaffected, being in the repo, not the volume).
+To completely reset the environment, remove the volume with `docker compose down -v` (your committed `vscode-server/` content is unaffected, being in the repo, not the volume).
 
 ## Port Configuration
 
@@ -299,7 +299,7 @@ environment:
 
 ### Adding VS Code Extensions
 
-Extensions are managed via the **git-tracked `vscode-server/extensions/` directory** in this repo, which is bind-mounted into the container at `~/.vscode-server/extensions`.
+Extensions are managed via the **git-tracked `vscode-server/extensions/` directory** in this repo, which is part of the `./vscode-server` bind-mount at `~/.vscode-server/`.
 
 **Workflow:**
 
