@@ -137,6 +137,8 @@ RUN npm i -g cli-mcp-mapper
 RUN mkdir -p /usr/local/share/copilot-code-server-container
 COPY entrypoint.sh /usr/local/share/copilot-code-server-container/agent-bootstrap.sh
 RUN chmod 0755 /usr/local/share/copilot-code-server-container/agent-bootstrap.sh
+COPY system-bootstrap.sh /usr/local/share/copilot-code-server-container/system-bootstrap.sh
+RUN chmod 0755 /usr/local/share/copilot-code-server-container/system-bootstrap.sh
 
 # ============================================
 # Configure s6 services
@@ -147,7 +149,7 @@ RUN chmod +x /usr/local/share/copilot-code-server-container/container-log-prefix
 COPY s6-overlay/ /etc/s6-overlay/
 
 RUN chmod +x \
-  /etc/s6-overlay/s6-rc.d/agent-bootstrap/up \
+  /etc/s6-overlay/s6-rc.d/system-bootstrap/up \
   /etc/s6-overlay/s6-rc.d/sshd/run \
   /etc/s6-overlay/s6-rc.d/sshd/log/run \
   /etc/s6-overlay/s6-rc.d/dockerd/run \
