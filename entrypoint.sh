@@ -37,15 +37,23 @@ export GIT_COMMITTER_NAME="$GIT_USERNAME"
 export GIT_COMMITTER_EMAIL="$GIT_EMAIL"
 
 # ============================================
-# SSH key auto-generation (ed25519)
+# SSH key auto-generation (ed25519 only)
 # ============================================
 SSH_DIR="/home/agent/.ssh"
 SSH_KEY="$SSH_DIR/id_ed25519"
 
+# Remove any legacy id_rsa key pair left over from older container versions.
+# We standardise on a single ed25519 key pair only.
+if [ -f "$SSH_DIR/id_rsa" ] || [ -f "$SSH_DIR/id_rsa.pub" ]; then
+    echo "🧹 Removing legacy id_rsa key pair (standardising on ed25519 only)..."
+    rm -f "$SSH_DIR/id_rsa" "$SSH_DIR/id_rsa.pub"
+    echo "✅ Legacy id_rsa removed"
+fi
+
 if [ ! -f "$SSH_KEY" ]; then
     echo "🔑 SSH keys not found. Generating new ed25519 SSH key pair..."
     mkdir -p "$SSH_DIR"
-    ssh-keygen -t ed25519 -f "$SSH_KEY" -N "" -C "${GIT_EMAIL}"
+    ssh-keygen -t ed25519 -f "$SSH_KEY" -N "" -C "${GIT_USERNAME} <${GIT_EMAIL}>"
     chmod 700 "$SSH_DIR"
     chmod 600 "$SSH_KEY"
     chmod 644 "$SSH_KEY.pub"
