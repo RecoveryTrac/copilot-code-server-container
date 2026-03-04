@@ -1,0 +1,7 @@
+#!/command/with-contenv bash
+set -euo pipefail
+
+# Ensure runtime directory exists for sshd
+mkdir -p /run/sshd
+
+exec /usr/sbin/sshd -D -p 2222 -e

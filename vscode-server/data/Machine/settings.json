@@ -10,8 +10,7 @@
     }
   },
   "workbench.colorTheme": "Abyss",
-  "chat.agent.enabled": false,
-  "chat.commandCenter.enabled": false,
-  "chat.disableAIFeatures": true,
+  "chat.agent.enabled": true,
+  "chat.commandCenter.enabled": true,
   "remote.autoForwardPortsSource": "hybrid",
 }

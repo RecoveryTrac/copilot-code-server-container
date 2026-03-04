@@ -1,0 +1,19 @@
+# Ignore VS Code server runtime files installed at container startup.
+# Only our tracked config and extensions should be committed.
+*
+
+# Keep this file
+!.gitignore
+
+# VS Code remote server extensions (installed via UI, committed to share with team)
+!extensions/
+!extensions/extensions.json
+
+# VS Code remote machine settings
+!data/
+!data/Machine/
+!data/Machine/settings.json
+
+# VS Code MCP server configuration
+!data/User/
+!data/User/mcp.json

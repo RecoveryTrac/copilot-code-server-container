@@ -1,8 +1,0 @@
-#!/command/with-contenv bash
-set -euo pipefail
-
-# - T: add timestamp to each line
-# - b: block buffering (better for streaming)
-# Then prefix with [code-server].
-exec s6-log -b T \
-  | /usr/local/share/copilot-code-server-container/log-prefix.sh code-server

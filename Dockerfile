@@ -125,11 +125,37 @@ RUN useradd -m -s /bin/zsh agent && \
 # Azure CLI (expensive, low volatility)
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
-# code-server (expensive, low volatility)
-RUN curl -fsSL https://code-server.dev/install.sh | sh
+# ============================================
+# Install OpenSSH server
+# ============================================
+RUN apt-get update && apt-get install -y openssh-server && rm -rf /var/lib/apt/lists/*
 
-# copilot CLI (medium expense, low volatility)
-RUN curl -fsSL https://gh.io/copilot-install | bash
+# Configure sshd: port 2222, key-based auth only, agent user only
+RUN mkdir -p /run/sshd && \
+    { \
+    echo ''; \
+    echo '# Remote-SSH configuration'; \
+    echo 'Port 2222'; \
+    echo 'PasswordAuthentication no'; \
+    echo 'PubkeyAuthentication yes'; \
+    echo 'PermitRootLogin no'; \
+    echo 'AllowUsers agent'; \
+    echo '# Only listen on IPv4 – avoids ::1 healthcheck log spam and'; \
+    echo '# simplifies VS Code Remote-SSH port-forwarding.'; \
+    echo 'AddressFamily inet'; \
+    echo '# Suppress any banner / last-login output.  VS Code Remote-SSH'; \
+    echo '# uses the SCP protocol to copy its server binary; any bytes'; \
+    echo '# output by sshd before the scp(1) ready-byte corrupt the'; \
+    echo '# handshake and cause the "Copying VS Code Server" spinner to'; \
+    echo '# hang forever.'; \
+    echo 'PrintMotd no'; \
+    echo 'PrintLastLog no'; \
+    echo '# Keep SSH connections alive during long file transfers.'; \
+    echo 'TCPKeepAlive yes'; \
+    echo 'ClientAliveInterval 60'; \
+    echo 'ClientAliveCountMax 10'; \
+    } >> /etc/ssh/sshd_config && \
+    ssh-keygen -A
 
 # ============================================
 # PHASE 10: Install language-specific tools (medium volatility)
@@ -145,9 +171,43 @@ RUN npm install -g typescript-language-server typescript cli-mcp-mapper
 # ============================================
 RUN az extension add --name azure-devops
 
+RUN mkdir -p /usr/local/share/copilot-code-server-container
+COPY entrypoint.sh /usr/local/share/copilot-code-server-container/agent-bootstrap.sh
+RUN chmod 0755 /usr/local/share/copilot-code-server-container/agent-bootstrap.sh
+COPY system-bootstrap.sh /usr/local/share/copilot-code-server-container/system-bootstrap.sh
+RUN chmod 0755 /usr/local/share/copilot-code-server-container/system-bootstrap.sh
+
 # ============================================
 # PHASE 12: Agent user environment setup (low volatility)
 # ============================================
+COPY ./container-log-prefixer.sh /usr/local/share/copilot-code-server-container/container-log-prefixer.sh
+RUN chmod +x /usr/local/share/copilot-code-server-container/container-log-prefixer.sh
+
+COPY s6-overlay/ /etc/s6-overlay/
+
+RUN chmod +x \
+    /etc/s6-overlay/s6-rc.d/system-bootstrap/up \
+    /etc/s6-overlay/s6-rc.d/sshd/run \
+    /etc/s6-overlay/s6-rc.d/sshd/log/run \
+    /etc/s6-overlay/s6-rc.d/dockerd/run \
+    /etc/s6-overlay/s6-rc.d/dockerd/log/run \
+    /etc/s6-overlay/s6-rc.d/agent-bootstrap/up
+
+# Remove any legacy s6 service directories that external install scripts may
+# have created (e.g. code-server registers /etc/services.d/code-server/).
+# All services for this container are compiled into s6-rc-compiled; legacy
+# service discovery must not start unexpected processes.
+# Placed here, after all external installs, to act as a final clean-up guard.
+RUN rm -rf /etc/services.d/ /etc/cont-init.d/
+
+RUN /command/s6-rc-compile /etc/s6-overlay/s6-rc-compiled /etc/s6-overlay/s6-rc.d
+
+# S6_CMD_WAIT_FOR_SERVICES_MAXTIME: Set to 10 minutes to allow git clone with large submodules
+ENV S6_CMD_WAIT_FOR_SERVICES=1
+ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=600000
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+
+# Switch to agent user for agent-owned config initialization
 USER agent
 
 ENV SHELL=/usr/bin/zsh \
@@ -173,9 +233,9 @@ Name-Email: agent@localhost
 Expire-Date: 0
 EOF
 
-# Create config directories
-RUN mkdir -p /home/agent/.local/share/code-server/User \
-    && mkdir -p /home/agent/.config/Code/User/globalStorage/github.copilot-chat
+# Create base VS Code server directory; the full tree is provided at runtime
+# by the ./vscode-server bind-mount in docker-compose.yml.
+RUN mkdir -p /home/agent/.vscode-server
 
 # ============================================
 # PHASE 13: Copy high-volatility agent scripts and configs
@@ -219,35 +279,24 @@ ENV AZURE_DEVOPS_ORG=TDRRecoveryTrac \
 COPY ./container-log-prefixer.sh /usr/local/share/copilot-code-server-container/container-log-prefixer.sh
 COPY s6-overlay/ /etc/s6-overlay/
 
-# Fix Windows line endings (CRLF → LF), set permissions, and compile s6 in one layer
+# Fix Windows line endings (CRLF → LF) for all s6 files and scripts
 # The find command ensures ALL s6 script files have Unix line endings
-RUN find /etc/s6-overlay -type f -exec sed -i 's/\r$//' {} \; && \
-    sed -i 's/\r$//' /usr/local/share/copilot-code-server-container/container-log-prefixer.sh && \
-    chmod +x /usr/local/share/copilot-code-server-container/container-log-prefixer.sh \
-    /etc/s6-overlay/s6-rc.d/code-server/run \
-    /etc/s6-overlay/s6-rc.d/code-server/log/run \
-    /etc/s6-overlay/s6-rc.d/dockerd/run \
-    /etc/s6-overlay/s6-rc.d/dockerd/log/run && \
-    /command/s6-rc-compile /etc/s6-overlay/s6-rc-compiled /etc/s6-overlay/s6-rc.d
+RUN find /etc/s6-overlay -type f -exec sed -i 's/\r$//' {} \;
 
-# S6_CMD_WAIT_FOR_SERVICES_MAXTIME: Global timeout for all services to start (milliseconds)
-# Set to 10 minutes (600000ms) to allow git clone with large submodules to complete
-ENV S6_CMD_WAIT_FOR_SERVICES=1 \
-    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=600000 \
-    S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
-    DOCKER_HOST=unix:///var/run/docker.sock
+# S6_CMD_WAIT_FOR_SERVICES_MAXTIME: Set to 10 minutes to allow git clone with large submodules
+ENV DOCKER_HOST=unix:///var/run/docker.sock
 
 # ============================================
 # PHASE 16: Final runtime configuration
 # ============================================
 WORKDIR /home/agent/workspace
 
-EXPOSE 8080
+EXPOSE 2222
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD curl -f http://localhost:8080/healthz || exit 1
+    CMD bash -c 'echo > /dev/tcp/127.0.0.1/2222' || exit 1
 
-# s6 init must run as root so dockerd can start; code-server runs as agent via s6 service
+# s6 init must run as root so dockerd and sshd can start properly
 USER root
 
 ENTRYPOINT ["/init"]

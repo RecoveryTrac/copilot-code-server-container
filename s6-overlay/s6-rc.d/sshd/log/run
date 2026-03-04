@@ -1,0 +1,5 @@
+#!/command/with-contenv bash
+set -euo pipefail
+
+exec s6-log -b T \
+  | /usr/local/share/copilot-code-server-container/container-log-prefixer.sh sshd
