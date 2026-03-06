@@ -176,10 +176,13 @@ RUN az extension add --name azure-devops
 RUN mkdir -p /usr/local/share/copilot-code-server-container
 COPY entrypoint.sh /usr/local/share/copilot-code-server-container/agent-bootstrap.sh
 COPY system-bootstrap.sh /usr/local/share/copilot-code-server-container/system-bootstrap.sh
+COPY kill-dotnet-processes.sh /usr/local/bin/kill-dotnet-processes
 RUN sed -i 's/\r$//' /usr/local/share/copilot-code-server-container/agent-bootstrap.sh \
-    /usr/local/share/copilot-code-server-container/system-bootstrap.sh && \
+    /usr/local/share/copilot-code-server-container/system-bootstrap.sh \
+    /usr/local/bin/kill-dotnet-processes && \
     chmod 0755 /usr/local/share/copilot-code-server-container/agent-bootstrap.sh \
-    /usr/local/share/copilot-code-server-container/system-bootstrap.sh
+    /usr/local/share/copilot-code-server-container/system-bootstrap.sh \
+    /usr/local/bin/kill-dotnet-processes
 
 # ============================================
 # PHASE 12: Agent user environment setup (low volatility)

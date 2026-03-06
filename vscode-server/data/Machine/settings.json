@@ -9,10 +9,238 @@
       "path": "/usr/bin/zsh"
     }
   },
-  "workbench.colorTheme": "Abyss",
+  "workbench.colorTheme": "Solarized Dark",
   "chat.agent.enabled": true,
   "chat.commandCenter.enabled": true,
   "remote.autoForwardPortsSource": "hybrid",
   "remote.SSH.defaultFolder": "/home/agent/workspace/RecoveryTrac",
-  "github.gitProtocol": "ssh"
+  "github.gitProtocol": "ssh",
+  "chat.editing.autoAcceptDelay": 1,
+  "remote.portsAttributes": {
+    "34823": {
+      "label": "ActivityService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "41245": {
+      "label": "ActivityService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "41259": {
+      "label": "AttachmentService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "42135": {
+      "label": "AttachmentService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "33489": {
+      "label": "AuditService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "45979": {
+      "label": "AuditService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "46325": {
+      "label": "AuthService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "39093": {
+      "label": "AuthService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "34829": {
+      "label": "ChangeLogService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "39355": {
+      "label": "ChangeLogService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "34553": {
+      "label": "DriverService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "45661": {
+      "label": "DriverService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "40521": {
+      "label": "FormService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "43501": {
+      "label": "FormService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "40773": {
+      "label": "LocationService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "41953": {
+      "label": "LocationService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "38977": {
+      "label": "LookupService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "36773": {
+      "label": "LookupService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "41213": {
+      "label": "MobileService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "34565": {
+      "label": "MobileService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "37079": {
+      "label": "NotificationService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "32813": {
+      "label": "NotificationService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "44817": {
+      "label": "OrganizationService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "38733": {
+      "label": "OrganizationService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "38935": {
+      "label": "ProjectService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "33767": {
+      "label": "ProjectService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "37077": {
+      "label": "ReportService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "36789": {
+      "label": "ReportService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "39939": {
+      "label": "RoleService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "44943": {
+      "label": "RoleService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "40877": {
+      "label": "TeamProjectService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "40099": {
+      "label": "TeamProjectService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "39007": {
+      "label": "TimeRecordService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "36757": {
+      "label": "TimeRecordService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "35193": {
+      "label": "TimeService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "45727": {
+      "label": "TimeService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "40799": {
+      "label": "UserService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "42085": {
+      "label": "UserService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "7107": {
+      "label": "WebApi-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "5234": {
+      "label": "WebApi-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "17143": {
+      "label": "aspire-dashboard-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "15038": {
+      "label": "aspire-dashboard-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "21088": {
+      "label": "aspire-dashboard-otlp-grpc",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "1437": {
+      "label": "SqlServer-tcp",
+      "protocol": "tcp",
+      "onAutoForward": "silent"
+    },
+    "6380": {
+      "label": "RedisCache-tcp",
+      "protocol": "tcp",
+      "onAutoForward": "silent"
+    }
+  }
 }

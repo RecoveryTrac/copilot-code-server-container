@@ -410,7 +410,7 @@ All commands automatically use the locked organization and project. Repository p
 - **Shell**: zsh with oh-my-zsh (jonathan theme)
 - **AI Tools**: cli-mcp-mapper
 - **Docker**: Docker Engine + Docker Compose plugin
-- **Custom Commands**: `start-issue` (Azure DevOps workflow automation)
+- **Custom Commands**: `start-issue` (Azure DevOps workflow automation), `kill-dotnet-processes` (memory management)
 
 ## Common Tasks
 
@@ -458,6 +458,22 @@ docker compose up -d --build
 ```bash
 docker exec -it copilot-dev-container zsh
 ```
+
+### Free Up Memory (Kill .NET Background Processes)
+
+If the container is using significant memory, .NET development tools (MSBuild, Roslyn, C# DevKit) may have background processes still running:
+
+```bash
+docker exec copilot-dev-container kill-dotnet-processes
+```
+
+Or from inside the container (via VS Code terminal):
+
+```bash
+kill-dotnet-processes
+```
+
+This kills MSBuild worker processes, Roslyn compiler servers, and C# language servers that continue running after builds. See [High Memory Usage](#high-memory-usage-33-4gb) for details.
 
 ### Reset Everything (Fresh Start)
 
@@ -559,6 +575,48 @@ AnotherRepo
 Both files require a container rebuild to take effect: `docker compose up -d --build`
 
 ## Troubleshooting
+
+### High Memory Usage (3-4 GB)
+
+**Symptom**: The container uses 3-4 GB of memory even when idle.
+
+**Cause**: If you have C# projects in your workspace, the C# DevKit extension spawns multiple memory-intensive background processes:
+- **MSBuild worker processes** (~150-200 MB each, 5-6 processes)
+- **Roslyn compiler server (VBCSCompiler)** (~300-400 MB)
+- **C# Language Servers** (~200-300 MB)
+- **VS Code Service Hosts** (~300-400 MB)
+
+These processes use **MSBuild node reuse** (`/nodeReuse:true`) which keeps worker processes alive for 15+ minutes after builds to speed up subsequent builds. Even if you disable the C# DevKit extension, already-running processes remain alive.
+
+**Solutions**:
+
+1. **Kill processes manually** (quick fix):
+   ```bash
+   kill-dotnet-processes
+   ```
+   This stops all .NET build/language server processes. Safe to run - doesn't affect running applications.
+
+2. **Disable MSBuild node reuse** (permanent fix):
+   
+   Add to `vscode-server/data/Machine/settings.json`:
+   ```json
+   {
+     "msbuild.nodeReuse": false
+   }
+   ```
+   Then rebuild the container: `docker compose up -d --build`
+   
+   This prevents MSBuild from keeping worker processes alive, but builds will be slower.
+
+3. **Uninstall C# extensions** (if not needed):
+   Remove `ms-dotnettools.csdevkit` and `ms-dotnettools.csharp` from the extensions directory:
+   ```bash
+   rm -rf vscode-server/extensions/ms-dotnettools.csdevkit-*
+   rm -rf vscode-server/extensions/ms-dotnettools.csharp-*
+   ```
+   Then rebuild: `docker compose up -d --build`
+
+**Note**: This is normal behavior for .NET development environments. Visual Studio and Rider exhibit similar memory usage patterns.
 
 ### Container Fails to Start
 
