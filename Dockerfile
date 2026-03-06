@@ -227,7 +227,7 @@ ENV SHELL=/usr/bin/zsh \
     HOME=/home/agent \
     USER=agent \
     LOGNAME=agent \
-    PATH="${PATH}:/home/agent/.dotnet/tools"
+    PATH="${PATH}:/home/agent/.dotnet/tools:/home/agent/.local/bin"
 
 # Aspire CLI (low-medium expense, medium volatility, must be run by the agent)
 RUN curl -sSL https://aspire.dev/install.sh | bash
@@ -238,6 +238,9 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 # Configure SSH agent - source environment from entrypoint.sh if available
 RUN echo '\n# Load SSH agent environment from container startup\nif [ -f "$HOME/.ssh/ssh-agent-env" ]; then\n  source "$HOME/.ssh/ssh-agent-env"\nfi' >> /home/agent/.zshrc && \
     echo '\n# Load SSH agent environment from container startup\nif [ -f "$HOME/.ssh/ssh-agent-env" ]; then\n  source "$HOME/.ssh/ssh-agent-env"\nfi' >> /home/agent/.bashrc
+
+# Install lazydocker
+RUN curl -sSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
 
 # Initialize GPG and pass for credential storage
 RUN gpg --batch --gen-key <<EOF && \

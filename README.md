@@ -176,19 +176,7 @@ Host copilot-dev
 
 > **Note for Windows**: Use forward slashes (/) in the `IdentityFile` path, even on Windows. Replace `<YourUsername>` with your actual Windows username.
 
-### 5. Configure VS Code Remote-SSH Settings
-
-Before connecting for the first time, open VS Code Settings (**File → Preferences → Settings** or **Cmd/Ctrl+,**) and set:
-
-```json
-"remote.SSH.localServerDownload": "always"
-```
-
-This tells VS Code to download its server component locally and copy it to the container via SCP, rather than trying to download it from inside the container. This is the recommended approach and avoids network issues inside the container.
-
-> **Why?** VS Code Remote-SSH needs to install a ~100 MB "VS Code Server" binary on the remote machine on first connection. With `localServerDownload: "always"` VS Code downloads the binary on your host machine and copies it to the container via SSH. Without this setting VS Code tries to download the server from inside the container, which can fail if the container's outbound internet access is limited.
-
-### 6. Connect via VS Code Remote-SSH
+### 5. Connect via VS Code Remote-SSH
 
 1. Open VS Code
 2. Press **F1** (or **Ctrl+Shift+P**)
@@ -201,7 +189,7 @@ On first connection VS Code will show **"Setting up SSH Host copilot-dev: Copyin
 
 > **Tip**: To view detailed progress during first connection, press **Ctrl+Shift+U** (or **Cmd+Shift+U** on Mac) to open the Output panel, then select **"Remote - SSH"** from the dropdown menu.
 
-### 7. Add Git SSH Key
+### 6. Add Git SSH Key
 
 The container exports your **public** SSH key to `.ssh-keys/copilot-dev-container.pub`. View this file and add it to your git hosting service (GitHub, Azure DevOps, GitLab, etc.) to enable authenticated git operations over SSH from within the container.
 
@@ -400,18 +388,6 @@ All commands automatically use the locked organization and project. Repository p
 - **Isolated credentials**: GPG and pass configured for secure credential storage
 - **Home directory permissions**: Locked down to 700
 
-### Installed Tools
-
-- **Languages**: Node.js, Python 3, .NET SDK 10.0, .NET Aspire CLI
-- **Version Control**: git, lazygit
-- **Azure Tools**: Azure CLI with Azure DevOps extension
-- **UI Tools**: gum (interactive CLI prompts)
-- **Security**: GPG, pass (password manager), OpenSSH
-- **Shell**: zsh with oh-my-zsh (jonathan theme)
-- **AI Tools**: cli-mcp-mapper
-- **Docker**: Docker Engine + Docker Compose plugin
-- **Custom Commands**: `start-issue` (Azure DevOps workflow automation), `kill-dotnet-processes` (memory management)
-
 ## Common Tasks
 
 ### Start Work on an Issue
@@ -512,14 +488,21 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 ```
 
-### Changing the Shell Theme
+### Customizing the Shell Theme
 
-Modify the `ZSH_THEME` environment variable in `docker-compose.yml`:
+The container's shell theme can be customized by editing the `.zshrc` file within the container. Since the agent home directory is stored in a persistent Docker volume, your shell configuration changes will be preserved across container restarts.
 
-```yaml
-environment:
-  - ZSH_THEME=robbyrussell  # or any oh-my-zsh theme
-```
+To customize your shell theme:
+
+1. Connect to the container via VS Code Remote-SSH (or use `docker exec`)
+2. Edit the `.zshrc` file in your home directory:
+   ```bash
+   nano ~/.zshrc
+   ```
+3. Modify the `ZSH_THEME` variable (e.g., `ZSH_THEME="robbyrussell"`)
+4. Save and restart your shell or run `source ~/.zshrc`
+
+Browse available themes at [oh-my-zsh themes](https://github.com/ohmyzsh/ohmyzsh/wiki/Themes).
 
 ### Adding VS Code Extensions
 
@@ -539,6 +522,8 @@ git push
 ```
 
 When a team member clones the repo and starts the container, VS Code finds the extensions pre-installed in the bind-mounted directory — no manual install needed.
+
+**Note: A fresh install may complain about the extensions being invalid, you may need to click uninstall > install on each extension once to fix this
 
 ### Configuring Azure DevOps
 

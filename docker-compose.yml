@@ -31,9 +31,6 @@ services:
       - REPO_URL=git@ssh.dev.azure.com:v3/TDRRecoveryTrac/RecoveryTrac/Aspire
       - REPO_FOLDER=RecoveryTrac
       
-      # Shell theme preference
-      - ZSH_THEME=jonathan
-      
       # Aspire Dashboard binding (0.0.0.0 allows external access)
       - ASPNETCORE_URLS=https://0.0.0.0:17143
 
