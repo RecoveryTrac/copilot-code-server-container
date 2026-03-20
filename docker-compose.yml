@@ -4,6 +4,7 @@ services:
     container_name: copilot-dev-container
 
     privileged: true
+    mem_swappiness: 0
 
     volumes:
       # Persist entire agent home directory (includes config, workspace, etc.)
@@ -11,6 +12,9 @@ services:
 
       # Persist Docker-in-Docker state (images/containers started by Aspire)
       - docker-data:/var/lib/docker
+
+      # Persist SSH host keys across rebuilds
+      - ssh-host-keys:/etc/ssh
 
       # Mount VS Code server directory so settings, MCP config, and extensions installed
       # via the UI are git-tracked and persist across container rebuilds.
@@ -47,12 +51,13 @@ services:
       - "65432:65432"
 
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo > /dev/tcp/127.0.0.1/2222"]
+      test: ["CMD-SHELL", "ss -tln | grep -q ':2222'"]
       interval: 30s
       timeout: 10s
-      start_period: 20s
+      start_period: 90s
       retries: 3
 
 volumes:
   agent-home:
   docker-data:
+  ssh-host-keys:

@@ -17,203 +17,173 @@
   "github.gitProtocol": "ssh",
   "chat.editing.autoAcceptDelay": 1,
   "remote.portsAttributes": {
-    "34823": {
+    "39499": {
       "label": "ActivityService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "41245": {
+    "35999": {
       "label": "ActivityService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "41259": {
+    "45505": {
       "label": "AttachmentService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "42135": {
+    "34531": {
       "label": "AttachmentService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "33489": {
+    "44129": {
       "label": "AuditService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "45979": {
+    "45343": {
       "label": "AuditService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "46325": {
-      "label": "AuthService-https",
-      "protocol": "https",
-      "onAutoForward": "silent"
-    },
-    "39093": {
-      "label": "AuthService-http",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    },
-    "34829": {
+    "36119": {
       "label": "ChangeLogService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "39355": {
+    "43433": {
       "label": "ChangeLogService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "34553": {
+    "40961": {
       "label": "DriverService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "45661": {
+    "46769": {
       "label": "DriverService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "40521": {
+    "40833": {
       "label": "FormService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "43501": {
+    "39503": {
       "label": "FormService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "40773": {
+    "35013": {
       "label": "LocationService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "41953": {
+    "34613": {
       "label": "LocationService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "38977": {
+    "37095": {
       "label": "LookupService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "36773": {
+    "37931": {
       "label": "LookupService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "41213": {
+    "35609": {
       "label": "MobileService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "34565": {
+    "40489": {
       "label": "MobileService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "37079": {
+    "35705": {
       "label": "NotificationService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "32813": {
+    "34353": {
       "label": "NotificationService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "44817": {
+    "43397": {
       "label": "OrganizationService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "38733": {
+    "42823": {
       "label": "OrganizationService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "38935": {
+    "43743": {
       "label": "ProjectService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "33767": {
+    "39035": {
       "label": "ProjectService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "37077": {
+    "40639": {
       "label": "ReportService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "36789": {
+    "34277": {
       "label": "ReportService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "39939": {
+    "41195": {
       "label": "RoleService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "44943": {
+    "43399": {
       "label": "RoleService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "40877": {
+    "38935": {
       "label": "TeamProjectService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "40099": {
+    "37133": {
       "label": "TeamProjectService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "39007": {
+    "43059": {
       "label": "TimeRecordService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "36757": {
+    "45067": {
       "label": "TimeRecordService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "35193": {
+    "34829": {
       "label": "TimeService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "45727": {
+    "36449": {
       "label": "TimeService-http",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    },
-    "40799": {
-      "label": "UserService-https",
-      "protocol": "https",
-      "onAutoForward": "silent"
-    },
-    "42085": {
-      "label": "UserService-http",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    },
-    "7107": {
-      "label": "WebApi-https",
-      "protocol": "https",
-      "onAutoForward": "silent"
-    },
-    "5234": {
-      "label": "WebApi-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
@@ -232,7 +202,37 @@
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "1437": {
+    "38135": {
+      "label": "AuthService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "33235": {
+      "label": "AuthService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "35355": {
+      "label": "UserService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "35445": {
+      "label": "UserService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "42771": {
+      "label": "WebApi-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "42731": {
+      "label": "WebApi-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "15433": {
       "label": "SqlServer-tcp",
       "protocol": "tcp",
       "onAutoForward": "silent"
@@ -242,5 +242,8 @@
       "protocol": "tcp",
       "onAutoForward": "silent"
     }
-  }
+  },
+  "chat.tools.global.autoApprove": true,
+  "dotnetAcquisitionExtension.existingDotnetPath": [],
+  "csharp.debug.hotReloadOnSave": false
 }

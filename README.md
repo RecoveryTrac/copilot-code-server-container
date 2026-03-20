@@ -504,6 +504,32 @@ To customize your shell theme:
 
 Browse available themes at [oh-my-zsh themes](https://github.com/ohmyzsh/ohmyzsh/wiki/Themes).
 
+### Configuring Swap Memory Limits
+
+By default, the container is configured to **disable swap memory** for both the outer container and all inner Docker containers. This prevents system hangs when containers run out of memory and start swapping to disk.
+
+**Configuration locations:**
+- **Outer container**: `mem_swappiness: 0` in [docker-compose.yml](docker-compose.yml)
+- **Inner containers**: `echo 0 > /sys/fs/cgroup/memory.swap.max` in [system-bootstrap.sh](system-bootstrap.sh)
+
+**To allow swap (e.g., 1GB limit for inner containers):**
+
+1. Edit [docker-compose.yml](docker-compose.yml) to adjust the outer container:
+   ```yaml
+   mem_swappiness: 60  # Default system value
+   ```
+
+2. Edit [system-bootstrap.sh](system-bootstrap.sh) to set the swap limit:
+   ```bash
+   echo 1073741824 > /sys/fs/cgroup/memory.swap.max  # 1GB in bytes
+   ```
+
+Then rebuild: `docker compose up -d --build`
+
+**Documentation:**
+- [Docker Compose mem_swappiness reference](https://docs.docker.com/reference/compose-file/services/#mem_swappiness)
+- [Linux cgroup v2 memory controller](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#memory)
+
 ### Adding VS Code Extensions
 
 Extensions are managed via the **git-tracked `vscode-server/extensions/` directory** in this repo, which is part of the `./vscode-server` bind-mount at `~/.vscode-server/`.
