@@ -272,6 +272,7 @@ COPY agent-git-commit.sh /usr/local/bin/agent-git-commit
 COPY agent-az-devops.sh /usr/local/bin/agent-az-devops
 COPY agent-az-devops-list-repositories.sh /usr/local/bin/agent-az-devops-list-repositories
 COPY repo-mappings.json allowed-repositories.conf /etc/
+COPY .zshrc /tmp/.zshrc.custom
 
 # Fix Windows line endings (CRLF → LF) and set permissions in one layer
 # Without this, scripts fail with "No such file or directory" errors on Linux
@@ -280,12 +281,17 @@ RUN sed -i 's/\r$//' \
     /usr/local/bin/agent-git-push \
     /usr/local/bin/agent-git-commit \
     /usr/local/bin/agent-az-devops \
-    /usr/local/bin/agent-az-devops-list-repositories && \
+    /usr/local/bin/agent-az-devops-list-repositories \
+    /tmp/.zshrc.custom && \
     chmod +x /usr/local/bin/start-issue \
     /usr/local/bin/agent-git-push \
     /usr/local/bin/agent-git-commit \
     /usr/local/bin/agent-az-devops \
     /usr/local/bin/agent-az-devops-list-repositories
+
+# Append custom zshrc configuration to agent's zshrc
+RUN cat /tmp/.zshrc.custom >> /home/agent/.zshrc && \
+    rm /tmp/.zshrc.custom
 
 # ============================================
 # PHASE 14: Set Azure DevOps environment (medium-high volatility)

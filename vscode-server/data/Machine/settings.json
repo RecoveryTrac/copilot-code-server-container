@@ -32,11 +32,6 @@
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "34531": {
-      "label": "AttachmentService-http",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    },
     "44129": {
       "label": "AuditService-https",
       "protocol": "https",
@@ -97,11 +92,6 @@
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "35609": {
-      "label": "MobileService-https",
-      "protocol": "https",
-      "onAutoForward": "silent"
-    },
     "40489": {
       "label": "MobileService-http",
       "protocol": "http",
@@ -120,11 +110,6 @@
     "43397": {
       "label": "OrganizationService-https",
       "protocol": "https",
-      "onAutoForward": "silent"
-    },
-    "42823": {
-      "label": "OrganizationService-http",
-      "protocol": "http",
       "onAutoForward": "silent"
     },
     "43743": {
@@ -187,6 +172,16 @@
       "protocol": "http",
       "onAutoForward": "silent"
     },
+    "37487": {
+      "label": "UserService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "36483": {
+      "label": "UserService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
     "17143": {
       "label": "aspire-dashboard-https",
       "protocol": "https",
@@ -202,32 +197,27 @@
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "38135": {
+    "4300": {
+      "label": "Hub-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "37641": {
       "label": "AuthService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "33235": {
+    "42871": {
       "label": "AuthService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "35355": {
-      "label": "UserService-https",
-      "protocol": "https",
-      "onAutoForward": "silent"
-    },
-    "35445": {
-      "label": "UserService-http",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    },
-    "42771": {
+    "38511": {
       "label": "WebApi-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "42731": {
+    "36383": {
       "label": "WebApi-http",
       "protocol": "http",
       "onAutoForward": "silent"
@@ -245,5 +235,9 @@
   },
   "chat.tools.global.autoApprove": true,
   "dotnetAcquisitionExtension.existingDotnetPath": [],
-  "csharp.debug.hotReloadOnSave": false
+  "csharp.debug.hotReloadOnSave": false,
+  "chat.tools.terminal.idlePollInterval": 10000,
+  "chat.tools.terminal.terminalProfile.linux": {
+    "path": "/usr/bin/bash"
+  }
 }
