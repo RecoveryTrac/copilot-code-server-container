@@ -27,19 +27,9 @@
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "45505": {
-      "label": "AttachmentService-https",
-      "protocol": "https",
-      "onAutoForward": "silent"
-    },
     "44129": {
       "label": "AuditService-https",
       "protocol": "https",
-      "onAutoForward": "silent"
-    },
-    "45343": {
-      "label": "AuditService-http",
-      "protocol": "http",
       "onAutoForward": "silent"
     },
     "36119": {
@@ -202,22 +192,22 @@
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "37641": {
+    "36205": {
       "label": "AuthService-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "42871": {
+    "39835": {
       "label": "AuthService-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "38511": {
+    "46401": {
       "label": "WebApi-https",
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "36383": {
+    "46213": {
       "label": "WebApi-http",
       "protocol": "http",
       "onAutoForward": "silent"
