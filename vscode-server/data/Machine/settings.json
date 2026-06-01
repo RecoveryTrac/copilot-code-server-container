@@ -167,8 +167,23 @@
       "protocol": "https",
       "onAutoForward": "silent"
     },
-    "36483": {
-      "label": "UserService-http",
+    "52004": {
+      "label": "AuthService-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "51004": {
+      "label": "AuthService-http",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    },
+    "7107": {
+      "label": "WebApi-https",
+      "protocol": "https",
+      "onAutoForward": "silent"
+    },
+    "5234": {
+      "label": "WebApi-http",
       "protocol": "http",
       "onAutoForward": "silent"
     },
@@ -192,27 +207,7 @@
       "protocol": "http",
       "onAutoForward": "silent"
     },
-    "36205": {
-      "label": "AuthService-https",
-      "protocol": "https",
-      "onAutoForward": "silent"
-    },
-    "39835": {
-      "label": "AuthService-http",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    },
-    "46401": {
-      "label": "WebApi-https",
-      "protocol": "https",
-      "onAutoForward": "silent"
-    },
-    "46213": {
-      "label": "WebApi-http",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    },
-    "15433": {
+    "1437": {
       "label": "SqlServer-tcp",
       "protocol": "tcp",
       "onAutoForward": "silent"

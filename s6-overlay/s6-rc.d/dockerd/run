@@ -4,5 +4,12 @@ set -euo pipefail
 # Ensure runtime directory exists
 mkdir -p /var/run
 
+# Remove stale PID file from a previous unclean shutdown (e.g. host machine
+# power-cycled while container was running). Without this, dockerd refuses to
+# start because the PID recorded in the file may have been reused by another
+# process. Safe to remove unconditionally: s6 guarantees only one instance of
+# this longrun service runs at a time, and the socket acts as a secondary lock.
+rm -f /var/run/docker.pid
+
 # Start Docker daemon (root)
 exec /usr/bin/dockerd --host=unix:///var/run/docker.sock

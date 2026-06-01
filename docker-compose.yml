@@ -4,6 +4,7 @@ services:
     container_name: copilot-dev-container
 
     privileged: true
+    cgroup: host
     mem_swappiness: 0
 
     volumes:
